@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include pharmacy_addon *.css
+recursive-include pharmacy_addon *.csv
+recursive-include pharmacy_addon *.html
+recursive-include pharmacy_addon *.ico
+recursive-include pharmacy_addon *.js
+recursive-include pharmacy_addon *.json
+recursive-include pharmacy_addon *.md
+recursive-include pharmacy_addon *.png
+recursive-include pharmacy_addon *.py
+recursive-include pharmacy_addon *.svg
+recursive-include pharmacy_addon *.txt
+recursive-exclude pharmacy_addon *.pyc
