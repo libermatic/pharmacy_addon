@@ -1,0 +1,11 @@
+[
+ {
+  "docstatus": 0, 
+  "doctype": "Custom Script", 
+  "dt": "Sales Invoice", 
+  "modified": "2017-11-27 02:29:15.217785", 
+  "name": "Sales Invoice-Client", 
+  "script": "cur_frm.add_fetch('batch_no', 'mrp', 'price_list_rate');", 
+  "script_type": "Client"
+ }
+]

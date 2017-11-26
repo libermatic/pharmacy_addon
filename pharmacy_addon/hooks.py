@@ -10,6 +10,7 @@ app_icon = "fa fa-medkit"
 app_color = "grey"
 app_email = "info@libermatic.com"
 app_license = "MIT"
+fixtures = ['Custom Field', 'Custom Script']
 
 # Includes in <head>
 # ------------------
@@ -119,4 +120,3 @@ app_license = "MIT"
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "pharmacy_addon.event.get_events"
 # }
-
