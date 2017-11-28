@@ -19,7 +19,7 @@ fixtures = [{
     }, {
         'doctype': 'Property Setter',
         'filters': [
-                { 'doc_type': 'Sales Invoice Item' },
+                [ 'doc_type', 'in', ('Sales Invoice Item', 'Purchase Invoice Item')],
                 [
                     'field_name',
                     'in',
@@ -33,24 +33,6 @@ fixtures = [{
                         'amount',
                         'batch_no',
                         'warehouse'
-                    )]
-            ]
-    }, {
-        'doctype': 'Property Setter',
-        'filters': [
-                { 'doc_type': 'Purchase Invoice Item' },
-                [
-                    'field_name',
-                    'in',
-                    (
-                        'item_code',
-                        'qty',
-                        'uom',
-                        'price_list_rate',
-                        'discount_percentage',
-                        'rate',
-                        'amount',
-                        'batch_no'
                     )]
             ]
     }]
