@@ -10,7 +10,50 @@ app_icon = "fa fa-medkit"
 app_color = "grey"
 app_email = "info@libermatic.com"
 app_license = "MIT"
-fixtures = ['Custom Field', 'Custom Script']
+fixtures = [{
+        'doctype': 'Custom Field',
+        'filters': { 'dt': 'Batch', 'fieldname': 'mrp' }
+    }, {
+        'doctype': 'Custom Script',
+        'filters': { 'dt': 'Sales Invoice' }
+    }, {
+        'doctype': 'Property Setter',
+        'filters': [
+                { 'doc_type': 'Sales Invoice Item' },
+                [
+                    'field_name',
+                    'in',
+                    (
+                        'item_code',
+                        'qty',
+                        'uom',
+                        'price_list_rate',
+                        'discount_percentage',
+                        'rate',
+                        'amount',
+                        'batch_no',
+                        'warehouse'
+                    )]
+            ]
+    }, {
+        'doctype': 'Property Setter',
+        'filters': [
+                { 'doc_type': 'Purchase Invoice Item' },
+                [
+                    'field_name',
+                    'in',
+                    (
+                        'item_code',
+                        'qty',
+                        'uom',
+                        'price_list_rate',
+                        'discount_percentage',
+                        'rate',
+                        'amount',
+                        'batch_no'
+                    )]
+            ]
+    }]
 
 # Includes in <head>
 # ------------------
