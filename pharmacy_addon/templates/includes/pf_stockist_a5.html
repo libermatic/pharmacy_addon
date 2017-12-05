@@ -1,0 +1,215 @@
+<style>
+  .print-format table, .print-format tr,
+  .print-format td, .print-format div, .print-format p {
+    font-family: Monospace;
+    vertical-align: middle;
+    font-size: 1rem;
+  }
+  .print-format div, .print-format p {
+    line-height: 1.5;
+  }
+  .print-format td {
+    line-height: 1;
+  }
+  .print-format .table td {
+    border-top: none;
+  }
+
+  @media screen {
+    .print-format {
+      width: 8.5in;
+      padding: 0.25in;
+      min-height: 5.5in;
+    }
+  }
+
+  .print-format h1, .print-format h2, .print-format hr {
+    margin: 0;
+  }
+  .print-format .h1 {
+    font-size: 1.5rem;
+  }
+  .print-format h2 {
+    font-size: 1.2rem;
+  }
+  .print-format .smaller {
+    font-size: .9em;
+  }
+
+  .print-format .header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #888;
+  }
+  .print-format .header p, .print-format .customer-details p {
+    font-size: .9rem;
+  }
+  .print-format .company {
+    margin-right: 1rem;
+  }
+
+  .print-format th {
+    background-color: #888 !important;
+  }
+  .print-format .row-divider > td {
+    border-top: 1px solid #888;
+  }
+
+  .print-format .footer {
+    margin-top: 1rem;
+    border-top: 1px solid #888;
+  }
+</style>
+
+
+<div class="header">
+  <div class="company">
+    <h2>{{doc.company}}</h2>
+    {%- if doc.company_address -%}
+      {%- set company_address = frappe.get_doc("Address", doc.company_address) -%}
+      {%- set lines = [
+        company_address.address_line1, company_address.address_line1, company_address.city, company_address.state,
+      ] -%}
+      <p>{{ lines|join(", ") }}</p>
+    {%- endif -%}
+    {%- set reg_details = frappe.db.get_value("Company", doc.company, "registration_details") -%}
+    {%- if reg_details -%}
+      <p>{{ reg_details }}</p>
+    {%- endif -%}
+    {%- if doc.company_gstin -%}
+      <p><strong>{{ _("GSTIN") }}:</strong> {{ doc.company_gstin }}</p>
+    {%- endif -%}
+  </div>
+  <div class="invoice">
+    <p><strong>{{ _("Invoice No")}}:</strong> <span class="h1">{{ doc.name }}</span></p>
+    <p><strong>{{ _("Date") }}:</strong> {{ doc.get_formatted("posting_date") }}</p>
+  </div>
+</div>
+
+<div class="customer-details">
+  <p><strong>{{ _("Customer Name") }}:</strong> {{ doc.customer_name }}</p>
+  {%- if doc.customer_gstin -%}
+    <p><strong>{{ _("Customer GSTIN") }}:</strong> {{ doc.customer_gstin }}</p>
+  {%- endif -%}
+  {%- if doc.customer_address -%}
+    {%- set customer_address = frappe.get_doc("Address", doc.customer_address) -%}
+    {%- set lines = [
+      customer_address.address_line1, customer_address.address_line1, customer_address.city, customer_address.state,
+    ] -%}
+    <p><strong>{{ _("Billing Address") }}:</strong>{{ lines|join(", ") }}</p>
+  {%- endif -%}
+</div>
+
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>{{ _("Item") }}</b></th>
+      <th width="140rem">{{ _("HSN/SAC") }}</th>
+      <th width="6%" class="text-right">{{ _("MRP") }}</th>
+      <th width="80rem">{{ _("Batch") }}</th>
+      <th width="8%" class="text-right">{{ _("Qty") }}</th>
+      <th width="6%">{{ _("UOM") }}</th>
+      <th width="6%" class="text-right">{{ _("Rate") }}</th>
+      <th width="15%" class="text-right">{{ _("Amount") }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{%- for grouper, list in doc.items|groupby("batch_no") -%}
+  		<tr>
+  			<td>
+          {%- set item_name = list|map(attribute="item_name")|first -%}
+          {%- set item_code = list|map(attribute="item_code")|first -%}
+  				{{ item_name }}
+          {{ frappe.db.get_value("Item", item_code, "item_group")[:3] }}.
+  				{%- if item_name != item_code -%}
+  					<br />
+            <span class="smaller">{{ item_code }}</span>
+  				{%- endif -%}
+  			</td>
+        <td>
+          {{ list|map(attribute="gst_hsn_code")|first }}
+          {%- set item_tax_rate = list|map(attribute="item_tax_rate")|first -%}
+          {%- if item_tax_rate -%}
+            <br />
+            {%- set taxes = json.loads(item_tax_rate) -%}
+            <span class="smaller">
+              {%- for tax_name, tax_rate in taxes.items() -%}
+                {% if "SGST" in tax_name %}
+                  SGST: {{ tax_rate }}%
+                {% endif %}
+                {% if "CGST" in tax_name %}
+                  CGST: {{ tax_rate }}%
+                {% endif %}
+              {%- endfor -%}
+            </span>
+          {%- endif -%}
+        </td>
+        <td class="text-right">{{ "%.2f"|format(list|map(attribute="price_list_rate")|first) }}</td>
+        <td>
+          {%- if grouper -%}
+            {{ grouper }}<br />
+            <span class="smaller">{{ frappe.db.get_value("Batch", grouper, "expiry_date") }}</span>
+          {%- endif -%}
+        </td>
+        <td class="text-right">
+          {{ list|map(attribute="qty")|first|int }}
+          {%- set free_qty = list|selectattr("rate", "equalto", 0)|sum(attribute="qty") -%}
+          {%- if free_qty -%}
+              <span class="smaller">{{ _("+") }}{{ free_qty|int }}</span>
+          {%- endif -%}
+        </td>
+        <td>{{ list|map(attribute="uom")|first }}</td>
+  			<td class="text-right">{{ "%.2f"|format(list|map(attribute="rate")|first) }}</td>
+  			<td class="text-right">{{ "%.2f"|format(list|sum(attribute="amount")) }}</td>
+  		</tr>
+		{%- endfor -%}
+	</tbody>
+  <tfoot>
+    <tr class="row-divider">
+      <td class="text-right" colspan="7">
+        {{ _("Net Total") }}
+      </td>
+      <td class="text-right">
+        {{ doc.get_formatted("net_total") }}
+      </td>
+    </tr>
+    {%- for row in doc.taxes -%}
+      {%- if not row.included_in_print_rate -%}
+        <tr>
+          <td class="text-right" colspan="7">
+            {{ row.description }}
+          </td>
+          <td class="text-right">
+            {{ row.get_formatted("tax_amount", doc) }}
+          </td>
+        </tr>
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if doc.discount_amount -%}
+      <tr>
+        <td class="text-right" colspan="7">
+          {{ _("Discount") }}
+        </td>
+        <td class="text-right">
+          {{ doc.get_formatted("discount_amount") }}
+        </td>
+      </tr>
+    {%- endif -%}
+    <tr class="row-divider">
+      <td class="text-right" colspan="7">
+        <b>{{ _("Grand Total") }}</b>
+      </td>
+      <td class="text-right">
+        {{ doc.get_formatted("grand_total") }}
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="footer">
+  {%- if doc.terms -%}
+    <p>{{ doc.terms }}</p>
+  {%- else -%}
+    <p class="text-center">{{ _("Thank you, please visit again.") }}</p>
+  {%- endif -%}
+</div>
