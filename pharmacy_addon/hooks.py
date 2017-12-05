@@ -14,9 +14,6 @@ fixtures = [{
         'doctype': 'Custom Field',
         'filters': { 'dt': 'Batch', 'fieldname': 'mrp' }
     }, {
-        'doctype': 'Custom Script',
-        'filters': { 'dt': 'Sales Invoice' }
-    }, {
         'doctype': 'Property Setter',
         'filters': [
                 [ 'doc_type', 'in', ('Sales Invoice Item', 'Purchase Invoice Item')],
@@ -52,7 +49,7 @@ fixtures = [{
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = { 'Sales Invoice' : 'public/js/custom_script/sales_invoice.js' }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
