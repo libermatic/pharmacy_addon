@@ -1,7 +1,6 @@
 frappe.ui.form.on('Sales Invoice', 'refresh', function() {
   frappe.ui.form.on('Sales Invoice Item', {
     item_code: async function(frm, cdt, cdn) {
-      const item = locals[cdt][cdn];
       const { message } = await frappe.db.get_value(
         'Pharmacy Settings',
         null,
